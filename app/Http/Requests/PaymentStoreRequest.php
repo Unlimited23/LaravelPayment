@@ -27,7 +27,7 @@ class PaymentStoreRequest extends FormRequest
             'amount' => 'required|numeric|min:5',
             'currency' => 'required|exists:currencies,iso',
             'payment_platform' => 'required|exists:payment_platforms,id',
-            'payment_method' => 'sometimes|nullable|string',
+            'payment_method' => 'required|string',
         ];
     }
 }
