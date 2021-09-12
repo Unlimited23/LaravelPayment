@@ -12,13 +12,11 @@ class StripeService implements PaymentService
 {
     use ConsumesExternalServices;
 
-    protected $key;
     protected $secret;
     protected $stripeClient;
 
     public function __construct()
     {
-        $this->baseURI = config('services.stripe.base_uri');
         $this->secret = config('services.stripe.secret');
         $this->stripeClient = new StripeClient($this->secret);
     }
