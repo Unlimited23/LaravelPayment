@@ -12,7 +12,6 @@ class StripeService implements PaymentService
 {
     use ConsumesExternalServices;
 
-    protected $baseURI;
     protected $key;
     protected $secret;
     protected $stripeClient;
@@ -20,9 +19,8 @@ class StripeService implements PaymentService
     public function __construct()
     {
         $this->baseURI = config('services.stripe.base_uri');
-        $this->key = config('services.stripe.key');
         $this->secret = config('services.stripe.secret');
-        $this->stripeClient = new StripeClient(config('services.stripe.secret'));
+        $this->stripeClient = new StripeClient($this->secret);
     }
 
     public function handlePayment(array $validated)
@@ -56,21 +54,6 @@ class StripeService implements PaymentService
         return redirect()
                 ->route('home')
                 ->withErrors('We cannot proceed with payment approval. Try again please!');
-    }
-
-    protected function resolveAuthorization(&$queryParams, &$formParams, &$headers)
-    {
-        $headers['Authorization'] = $this->resolveAccessToken();
-    }
-
-    protected function decodeResponse($response)
-    {
-        return json_decode($response);
-    }
-
-    protected function resolveAccessToken()
-    {
-        return "Bearer {$this->secret}";
     }
 
     protected function createIntent($amount, $currency, $paymentMethod)
