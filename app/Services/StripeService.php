@@ -73,7 +73,7 @@ class StripeService implements PaymentService
         return "Bearer {$this->secret}";
     }
 
-    public function createIntent($amount, $currency, $paymentMethod)
+    protected function createIntent($amount, $currency, $paymentMethod)
     {
         try {
             return $this->stripeClient->paymentIntents->create([
@@ -88,12 +88,16 @@ class StripeService implements PaymentService
         }
     }
 
-    public function confirmPayment($paymentIntentId)
+    protected function confirmPayment($paymentIntentId)
     {
-        return $this->stripeClient->paymentIntents->confirm(
-            $paymentIntentId,
-            ['payment_method' => 'pm_card_visa']
-        );
+        try {
+            return $this->stripeClient->paymentIntents->confirm(
+                $paymentIntentId,
+                ['payment_method' => 'pm_card_visa']
+            );
+        } catch (ApiErrorException $e) {
+            return ['error' => $e->getMessage()];
+        }
     }
 
     protected function resolveFactor($currency)
