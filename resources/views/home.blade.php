@@ -57,6 +57,18 @@
                           </div>
                         </div>
                       </div>
+                        <div class="row">
+                            <div class="col-auto">
+                                <p class="border-bottom border-primary rounded">
+                                    @if(!auth()->user()?->hasActiveSubscription())
+                                        <span>Would you like a discount every time</span>
+                                        <a class="btn btn-outline-primary" href="{{ route('subscribe.show') }}">Subscribe</a>
+                                    @else
+                                        You get a <strong>10% off</strong> as part of your subscription? (Applied on checkout.)
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
                       <div class="text-center mt-3">
                         <button id="btnPay" class="btn btn-primary btn-lg" action="submit">@lang('dashboard.payments.pay')</button>
                       </div>

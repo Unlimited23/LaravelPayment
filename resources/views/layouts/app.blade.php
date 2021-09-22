@@ -31,11 +31,18 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-
+                        @if(!auth()->user()?->hasActiveSubscription())
+                        <li class="nav-item">
+                            <a class="btn btn-outline-primary" href="{{ route('subscribe.show') }}">Subscribe</a>
+                        </li>
+                        @endif
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('home') }}">Home</a>
+                        </li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ml-auto">
+                    <ul class="navbar-nav ml-auto text-right">
                         <!-- Authentication Links -->
                         @guest
                             @if (Route::has('login'))
