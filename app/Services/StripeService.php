@@ -35,6 +35,12 @@ class StripeService implements PaymentService
         if (session()->has('paymentIntentId')) {
             $confirmation = $this->confirmPayment(session()->get('paymentIntentId'));
 
+            if ($confirmation->status == 'requires_action') {
+                $clientSecret = $confirmation->client_secret;
+                
+                return view('stripe.3d-secure')->with(compact('clientSecret'));
+            }
+            
             if ($confirmation->status === 'succeeded') {
                 $name = $confirmation->charges->data[0]->billing_details->name;
                 $currency = Str::upper($confirmation->currency);
@@ -62,7 +68,6 @@ class StripeService implements PaymentService
                 'currency' => Str::lower($currency),
                 'payment_method' => $paymentMethod,
                 'confirmation_method' => 'manual',
-                'payment_method_types' => ['card'],
             ]);
         } catch (ApiErrorException $e) {
             return ['error' => $e->getMessage()];
@@ -72,10 +77,7 @@ class StripeService implements PaymentService
     protected function confirmPayment($paymentIntentId)
     {
         try {
-            return $this->stripeClient->paymentIntents->confirm(
-                $paymentIntentId,
-                ['payment_method' => 'pm_card_visa']
-            );
+            return $this->stripeClient->paymentIntents->confirm($paymentIntentId);
         } catch (ApiErrorException $e) {
             return ['error' => $e->getMessage()];
         }
