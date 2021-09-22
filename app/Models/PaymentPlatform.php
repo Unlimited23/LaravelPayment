@@ -8,6 +8,12 @@ class PaymentPlatform extends Model
 {
     protected $fillable = [
         'name',
-        'image'
+        'image',
+        'subscriptions_enabled',
     ];
+    
+    public function scopeWithEnabledSubscriptions($query)
+    {
+        return $query->where('subscriptions_enabled', true);
+    }
 }

@@ -24,7 +24,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home')->with([
+        return view('home', [
             'currencies' => Currency::all(),
             'paymentPlatforms' => PaymentPlatform::all(),
         ]);

@@ -61,10 +61,10 @@
                             <div class="col-auto">
                                 <p class="border-bottom border-primary rounded">
                                     @if(!auth()->user()?->hasActiveSubscription())
-                                        <span>Would you like a discount every time</span>
-                                        <a class="btn btn-outline-primary" href="{{ route('subscribe.show') }}">Subscribe</a>
+                                        <span>@lang('dashboard.payments.discount')</span>
+                                        <a class="btn btn-outline-primary" href="{{ route('subscribe.show') }}">@lang('dashboard.payments.subscribe')</a>
                                     @else
-                                        You get a <strong>10% off</strong> as part of your subscription? (Applied on checkout.)
+                                        @lang('dashboard.payments.discount_applied')
                                     @endif
                                 </p>
                             </div>

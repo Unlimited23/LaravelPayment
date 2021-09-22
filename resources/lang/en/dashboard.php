@@ -8,7 +8,10 @@ return [
         'pay' => 'Pay',
         'currency' => 'Currency',
         'platform_select' => 'Select the desired payment platform.',
-        'redirect' => 'You will be redirected to the :platform checkout page.'
+        'redirect' => 'You will be redirected to the :platform checkout page.',
+        'subscribe' => 'Subscribe',
+        'discount' => 'Would you like a discount every time?',
+        'discount_applied' => 'You get a <strong>10% off</strong> as part of your subscription? (Applied on checkout.)'
     ]
 ];
 
