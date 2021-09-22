@@ -13,12 +13,14 @@ class PayPalService implements PaymentService
     protected $baseURI;
     protected $clientID;
     protected $clientSecret;
+    protected $plans;
 
     public function __construct()
     {
         $this->baseURI = config('services.paypal.base_uri');
         $this->clientID = config('services.paypal.client_id');
         $this->clientSecret = config('services.paypal.client_secret');
+        $this->plans = config('services.paypal.plans');
     }
 
     public function handlePayment(array $validated)
@@ -32,7 +34,7 @@ class PayPalService implements PaymentService
 
     public function handleApproval()
     {
-        if (session()->has('approvalId')) {           
+        if (session()->has('approvalId')) {
             $payment = $this->capturePayment(session()->get('approvalId'));
             $amount = $payment->purchase_units[0]->payments->captures[0]->amount;
             return redirect()
@@ -46,6 +48,11 @@ class PayPalService implements PaymentService
         return redirect()
                 ->route('home')
                 ->withErrors('We cannot capture the payment. Please try again later!');
+    }
+
+    public function handleSubscription()
+    {
+        dd($this->plans);
     }
 
     protected function resolveAuthorization(&$queryParams, &$formParams, &$headers)
@@ -96,7 +103,7 @@ class PayPalService implements PaymentService
     protected function capturePayment($approvalId)
     {
         return $this->makeRequest(
-            'POST', 
+            'POST',
             "/v2/checkout/orders/{$approvalId}/capture",
             headers: [
                 'Content-Type' => 'application/json',

@@ -7,9 +7,8 @@ use App\Http\Requests\PaymentStoreRequest;
 
 class PaymentController extends Controller
 {
-    public function __construct(
-        protected PaymentPlatformResolver $resolver
-    ) {
+    public function __construct(protected PaymentPlatformResolver $resolver)
+    {
         $this->middleware('auth');
     }
 
