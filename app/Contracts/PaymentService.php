@@ -6,5 +6,5 @@ interface PaymentService
 {
     public function handlePayment(array $validated);
     public function handleApproval();
-    public function handleSubscription();
+    public function handleSubscription(array $validated);
 }

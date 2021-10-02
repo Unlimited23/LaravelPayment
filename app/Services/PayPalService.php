@@ -50,9 +50,21 @@ class PayPalService implements PaymentService
                 ->withErrors('We cannot capture the payment. Please try again later!');
     }
 
-    public function handleSubscription()
+    public function handleSubscription($validated)
     {
-        dd($this->plans);
+        try {
+            $user = auth()->user();
+
+            $subscription = $this->createSubscription($validated['plan'], $user->name, $user->email);
+
+            session()->put('subscriptionId', $subscription->id);
+
+            return redirect(collect($subscription->links)->where('rel', 'approve')->first()?->href);
+        } catch(\Throwable $th) {
+//            $r = $th->getResponse();
+//            $responseBodyAsString = json_decode($r->getBody()->getContents());
+//            dd($responseBodyAsString);
+        }
     }
 
     protected function resolveAuthorization(&$queryParams, &$formParams, &$headers)
@@ -95,6 +107,39 @@ class PayPalService implements PaymentService
                     'user_action' => 'PAY_NOW',
                     'return_url' => route('approval'),
                     'cancel_url' => route('cancel'),
+                ]
+            ],
+            isJsonRequest: true);
+    }
+
+    public function createSubscription($planSlug, $name, $email)
+    {
+        return $this->makeRequest(
+            method: 'POST',
+            requestUrl: '/v1/billing/subscriptions',
+            headers: [
+                'Content-Type' => 'application/json',
+            ],
+            formParams: [
+                'plan_id' => $this->plans[$planSlug],
+                "shipping_amount" => [
+                  "currency_code" => "USD",
+                  "value" => "12.00"
+                ],
+                'subscriber' => [
+                    'name' => [
+                        'given_name' => $name,
+                    ],
+                    'email_address' => $email
+                ],
+                'application_context' => [
+                    'brand_name' => config('app.name'),
+                    'shipping_preference' => 'NO_SHIPPING',
+                    'user_action' => 'SUBSCRIBE_NOW',
+                ],
+                'redirect_urls' => [
+                    'return_url' => route('subscribe.approval'),
+                    'cancel_url' => route('subscribe.cancel'),
                 ]
             ],
             isJsonRequest: true);

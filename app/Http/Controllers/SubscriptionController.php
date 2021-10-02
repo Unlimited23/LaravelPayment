@@ -12,7 +12,7 @@ class SubscriptionController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     public function show()
     {
         return view('subscribe', [
@@ -32,11 +32,11 @@ class SubscriptionController extends Controller
 
     public function approval()
     {
-        
+        dd('approval');
     }
 
     public function cancel()
     {
-        
+        dd('cancel');
     }
 }
