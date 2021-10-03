@@ -18,9 +18,14 @@ class PaymentController extends Controller
 
         session()->put('paymentPlatformId', $validated['payment_platform']);
 
+        // add 10% discount
+        if ($request->user()->hasActiveSubscription()) {
+            $validated['amount'] = round($validated['amount'] * 0.9, 2);
+        }
+
         return $this->resolver->resolveService($validated['payment_platform'])->handlePayment($validated);
     }
-    
+
     public function approval()
     {
         if (session()->has('paymentPlatformId')) {

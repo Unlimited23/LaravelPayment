@@ -67,6 +67,18 @@ class PayPalService implements PaymentService
         }
     }
 
+    public function validateSubscription(array $validated)
+    {
+        if (session()->has('subscriptionId')) {
+
+            session()->forget('subscriptionId');
+
+            return true; // session()->get('subscriptionId') == $validated['subscription_id'];
+        }
+
+        return false;
+    }
+
     protected function resolveAuthorization(&$queryParams, &$formParams, &$headers)
     {
         $headers['Authorization'] = $this->resolveAccessToken();

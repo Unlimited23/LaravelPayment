@@ -23,11 +23,13 @@ class PaymentStoreRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+
+        return array_merge([
             'amount' => 'required|numeric|min:5',
             'currency' => 'required|exists:currencies,iso',
             'payment_platform' => 'required|exists:payment_platforms,id',
+        ], $this->payment_platform == 2 ? [
             'payment_method' => 'required|string',
-        ];
+        ] : []);
     }
 }
