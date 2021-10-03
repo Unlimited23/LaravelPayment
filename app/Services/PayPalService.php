@@ -124,7 +124,7 @@ class PayPalService implements PaymentService
             isJsonRequest: true);
     }
 
-    public function createSubscription($planSlug, $name, $email)
+    protected function createSubscription($planSlug, $name, $email)
     {
         return $this->makeRequest(
             method: 'POST',

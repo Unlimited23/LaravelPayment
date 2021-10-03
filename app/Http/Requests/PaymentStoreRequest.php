@@ -28,7 +28,7 @@ class PaymentStoreRequest extends FormRequest
             'amount' => 'required|numeric|min:5',
             'currency' => 'required|exists:currencies,iso',
             'payment_platform' => 'required|exists:payment_platforms,id',
-        ], $this->payment_platform == 2 ? [
+        ], $this->payment_platform == 2 ? [ // stripe
             'payment_method' => 'required|string',
         ] : []);
     }

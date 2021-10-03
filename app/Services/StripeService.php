@@ -14,11 +14,13 @@ class StripeService implements PaymentService
 
     protected $secret;
     protected $stripeClient;
+    protected $plans;
 
     public function __construct()
     {
         $this->secret = config('services.stripe.secret');
         $this->stripeClient = new StripeClient($this->secret);
+        $this->plans = config('services.stripe.plans');
     }
 
     public function handlePayment(array $validated)
@@ -58,6 +60,11 @@ class StripeService implements PaymentService
         return redirect()
                 ->route('home')
                 ->withErrors('We cannot proceed with payment approval. Try again please!');
+    }
+
+    public function handleSubscription(array $validated)
+    {
+        dd($this->plans, $validated);
     }
 
     protected function createIntent($amount, $currency, $paymentMethod)

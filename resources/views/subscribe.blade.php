@@ -52,7 +52,7 @@
                       </div>
 
                       <div class="text-center mt-3">
-                        <button id="btnSubscribe" class="btn btn-primary btn-lg" action="submit">@lang('dashboard.payments.subscribe')</button>
+                        <button id="btnPay" class="btn btn-primary btn-lg" action="submit">@lang('dashboard.payments.subscribe')</button>
                       </div>
                   </form>
                 </div>
