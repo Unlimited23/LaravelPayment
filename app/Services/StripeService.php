@@ -70,10 +70,22 @@ class StripeService implements PaymentService
 
         if ($subscription->status == 'active') {
             session()->put('subscriptionId', $subscription->id);
+
             return redirect()->route('subscribe.approval', [
                 'plan' => $validated['plan'],
                 'subscription_id' => $subscription->id,
             ]);
+        }
+
+        $paymentIntentId = $subscription->latest_invoice->payment_intent;
+
+        if ($paymentIntentId->status == 'requires_action') {
+            $clientSecret = $paymentIntentId->client_secret;
+            $plan = $validated['plan'];
+            $paymentMethod =  $validated['payment_method'];
+            $subscriptionId = $subscription->id;
+
+            return view('stripe.3d-secure-subscription', compact('clientSecret', 'plan', 'paymentMethod', 'subscriptionId'));
         }
 
         return redirect()
@@ -125,7 +137,8 @@ class StripeService implements PaymentService
                 'items' => [
                     ['price' => $priceId],
                 ],
-                'default_payment_method' => $paymentMethod
+                'default_payment_method' => $paymentMethod,
+                'expand' => ['latest_invoice.payment_intent'],
             ]);
         } catch (ApiErrorException $e) {
             return ['error' => $e->getMessage()];
