@@ -64,7 +64,21 @@ class StripeService implements PaymentService
 
     public function handleSubscription(array $validated)
     {
-        dd($this->plans, $validated);
+        $user = auth()->user();
+        $customer = $this->createCustomer($user->name, $user->email, $validated['payment_method']);
+        $subscription = $this->createSubscription($customer->id, $validated['payment_method'], $this->plans[$validated['plan']]);
+
+        if ($subscription->status == 'active') {
+            session()->put('subscriptionId', $subscription->id);
+            return redirect()->route('subscribe.approval', [
+                'plan' => $validated['plan'],
+                'subscription_id' => $subscription->id,
+            ]);
+        }
+
+        return redirect()
+            ->route('subscribe.show')
+            ->withErrors('We were unable to active the subscription. Try again, please!');
     }
 
     protected function createIntent($amount, $currency, $paymentMethod)
@@ -88,6 +102,47 @@ class StripeService implements PaymentService
         } catch (ApiErrorException $e) {
             return ['error' => $e->getMessage()];
         }
+    }
+
+    protected function createCustomer($name, $email, $paymentMethod)
+    {
+        try {
+            return $this->stripeClient->customers->create([
+                'name' => $name,
+                'email' => $email,
+                'payment_method' => $paymentMethod
+            ]);
+        } catch (ApiErrorException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    protected function createSubscription($customerId, $paymentMethod, $priceId)
+    {
+        try {
+            return $this->stripeClient->subscriptions->create([
+                'customer' => $customerId,
+                'items' => [
+                    ['price' => $priceId],
+                ],
+                'default_payment_method' => $paymentMethod
+            ]);
+        } catch (ApiErrorException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public function validateSubscription(array $validated)
+    {
+        if (session()->has('subscriptionId')) {
+            $subscriptionId = session()->get('subscriptionId');
+
+            session()->forget('subscriptionId');
+
+            return $subscriptionId == $validated['subscription_id'];
+        }
+
+        return false;
     }
 
     protected function resolveFactor($currency)

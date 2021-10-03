@@ -15,6 +15,7 @@ class ApprovalRequest extends FormRequest
     {
         return [
             'plan' => ['required', 'exists:plans,slug'],
+            'subscription_id' => 'sometimes|nullable|string|max:256',
         ];
     }
 }
