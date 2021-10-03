@@ -16,7 +16,7 @@ class CreateSubscriptionsTable extends Migration
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->timestamp('active_until');
-            $table->foreignId('user_id')->nullable()->default(null)->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->default(null)->constrained()->onDelete('cascade')->unique();
             $table->foreignId('plan_id')->nullable()->default(null)->constrained()->onDelete('cascade');
             $table->timestamps();
         });

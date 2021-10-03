@@ -41,11 +41,11 @@
                             <div class="btn-group btn-group-toggle"
                                 data-toggle="buttons">
                                 @foreach($paymentPlatforms as $paymentPlatform)
-                                    <label class="btn btn-secondary rounded mt-2 p-1 m-2" 
+                                    <label class="btn btn-secondary rounded mt-2 p-1 m-2"
                                         data-bs-target="#{{ $paymentPlatform->name }}Collapse"
                                         data-bs-toggle="collapse">
                                       <input type="radio" name="payment_platform" value="{{ $paymentPlatform->id }}" required>
-                                      <img src="{{ asset($paymentPlatform->image) }}" class="img-thumbnail"> 
+                                      <img src="{{ asset($paymentPlatform->image) }}" class="img-thumbnail">
                                     </label>
                                 @endforeach
                             </div>
