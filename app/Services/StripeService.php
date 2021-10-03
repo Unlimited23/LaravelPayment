@@ -14,11 +14,13 @@ class StripeService implements PaymentService
 
     protected $secret;
     protected $stripeClient;
+    protected $plans;
 
     public function __construct()
     {
         $this->secret = config('services.stripe.secret');
         $this->stripeClient = new StripeClient($this->secret);
+        $this->plans = config('services.stripe.plans');
     }
 
     public function handlePayment(array $validated)
@@ -60,6 +62,37 @@ class StripeService implements PaymentService
                 ->withErrors('We cannot proceed with payment approval. Try again please!');
     }
 
+    public function handleSubscription(array $validated)
+    {
+        $user = auth()->user();
+        $customer = $this->createCustomer($user->name, $user->email, $validated['payment_method']);
+        $subscription = $this->createSubscription($customer->id, $validated['payment_method'], $this->plans[$validated['plan']]);
+
+        if ($subscription->status == 'active') {
+            session()->put('subscriptionId', $subscription->id);
+
+            return redirect()->route('subscribe.approval', [
+                'plan' => $validated['plan'],
+                'subscription_id' => $subscription->id,
+            ]);
+        }
+
+        $paymentIntentId = $subscription->latest_invoice->payment_intent;
+
+        if ($paymentIntentId->status == 'requires_action') {
+            $clientSecret = $paymentIntentId->client_secret;
+            $plan = $validated['plan'];
+            $paymentMethod =  $validated['payment_method'];
+            $subscriptionId = $subscription->id;
+
+            return view('stripe.3d-secure-subscription', compact('clientSecret', 'plan', 'paymentMethod', 'subscriptionId'));
+        }
+
+        return redirect()
+            ->route('subscribe.show')
+            ->withErrors('We were unable to active the subscription. Try again, please!');
+    }
+
     protected function createIntent($amount, $currency, $paymentMethod)
     {
         try {
@@ -81,6 +114,48 @@ class StripeService implements PaymentService
         } catch (ApiErrorException $e) {
             return ['error' => $e->getMessage()];
         }
+    }
+
+    protected function createCustomer($name, $email, $paymentMethod)
+    {
+        try {
+            return $this->stripeClient->customers->create([
+                'name' => $name,
+                'email' => $email,
+                'payment_method' => $paymentMethod
+            ]);
+        } catch (ApiErrorException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    protected function createSubscription($customerId, $paymentMethod, $priceId)
+    {
+        try {
+            return $this->stripeClient->subscriptions->create([
+                'customer' => $customerId,
+                'items' => [
+                    ['price' => $priceId],
+                ],
+                'default_payment_method' => $paymentMethod,
+                'expand' => ['latest_invoice.payment_intent'],
+            ]);
+        } catch (ApiErrorException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public function validateSubscription(array $validated)
+    {
+        if (session()->has('subscriptionId')) {
+            $subscriptionId = session()->get('subscriptionId');
+
+            session()->forget('subscriptionId');
+
+            return $subscriptionId == $validated['subscription_id'];
+        }
+
+        return false;
     }
 
     protected function resolveFactor($currency)

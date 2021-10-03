@@ -19,7 +19,7 @@ return [
         'secret' => env('MAILGUN_SECRET'),
         'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
     ],
-    
+
     'paypal' => [
         'base_uri' => env('PAYPAL_BASE_URI'),
         'client_id' => env('PAYPAL_CLIENT_ID'),
@@ -30,12 +30,16 @@ return [
             'yearly' => env('PAYPAL_YEARLY_PLAN'),
         ]
     ],
-    
+
     'stripe' => [
         'base_uri' => env('STRIPE_BASE_URI'),
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
         'class' => App\Services\StripeService::class,
+        'plans' => [
+            'monthly' => env('STRIPE_MONTHLY_PLAN'),
+            'yearly' => env('STRIPE_YEARLY_PLAN'),
+        ]
     ],
 
     'postmark' => [

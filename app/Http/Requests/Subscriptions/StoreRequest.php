@@ -13,9 +13,11 @@ class StoreRequest extends FormRequest
 
     public function rules()
     {
-        return [
+        return array_merge([
             'plan' => 'required|exists:plans,slug',
             'payment_platform' => 'required|exists:payment_platforms,id',
-        ];
+        ], $this->payment_platform == 2 ? [ // stripe
+            'payment_method' => 'required|string',
+        ] : []);
     }
 }
